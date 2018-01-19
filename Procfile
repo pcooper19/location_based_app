@@ -1,1 +1,1 @@
-web: gunicorn routes:app
+web: gunicorn location_based_app:app
