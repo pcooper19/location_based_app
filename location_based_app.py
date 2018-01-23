@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request
-from models import db
+from flask import Flask, render_template, request, session, redirect, url_for
+from models import db, User
 from forms import SignupForm
 
 
@@ -24,11 +24,23 @@ def signup():
     form = SignupForm()
 
     if request.method == "POST":
-        return "Success!"
+        if form.validate() == False: # if we are unable to verify the form data, reload the form
+            return render_template("signup.html", form = form)
+        else:
+            newuser = User(form.first_name.data, form.last_name.data, form.email.data, form.password.data)
+            db.session.add(newuser)
+            db.session.commit()
+
+            session["email"] = newuser.email #creates a new session when a new users signs up for the app
+            return redirect(url_for("home")) # user is this re-directed to the home page
 
     elif request.method == "GET":
         return render_template("signup.html", form = form)
 
+@app.route("/home")
+def home():
+    return render_template("home.html")
+    app.run(debug = True)
 
 if __name__ == "__main__":
-  app.run(debug=True)
+  app.run(debug = True)
